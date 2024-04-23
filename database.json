@@ -1,0 +1,208 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Nguyen Hoan",
+      "email": "nhu@fpt.edu.vn",
+      "password": "123",
+      "dob": "14/02/2024",
+      "gender": true,
+      "role": 1,
+      "cart": [
+        {
+          "productId": "P002",
+          "quantity": 2
+        },
+        {
+          "productId": "P001",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Nguyen Hoan",
+      "email": "abc@fpt.edu.vn",
+      "password": "123",
+      "dob": "14/02/2024",
+      "gender": true,
+      "address": "ư",
+      "role": 2,
+      "cart": [
+        {
+          "productId": "P001",
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "orders": [
+    {
+      "id": "1",
+      "orderDate": "2024-04-23",
+      "requireDate": "2024-04-25",
+      "status": "Đang xử lý",
+      "address": "123 Đường ABC, Quận XYZ, Thành phố HCM",
+      "userId": "1",
+      "mobile": "0123456789",
+      "email": "hoan@fpt.edu.vn",
+      "vat": 8,
+      "price": 1230,
+      "products": [
+        {
+          "productId": "P001",
+          "quantity": 1
+        },
+        {
+          "productId": "P002",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "orderDate": "2024-04-24",
+      "requireDate": "2024-04-26",
+      "status": "Chờ xác nhận",
+      "address": "456 Đường XYZ, Quận ABC, Thành phố HN",
+      "userId": "2",
+      "mobile": "0987654321",
+      "email": "abc@fpt.edu.vn",
+      "vat": 8,
+      "price": 1230,
+      "products": [
+        {
+          "productId": "P001",
+          "quantity": 1
+        },
+        {
+          "productId": "P002",
+          "quantity": 2
+        },
+        {
+          "productId": "P003",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "id": "4bc4",
+      "userId": "2",
+      "orderDate": "2024-04-23T08:45:45.227Z",
+      "requireDate": "2024-04-26T08:45:45.227Z",
+      "status": "Pending",
+      "address": "Hà nội",
+      "mobile": "0987654321",
+      "email": "a@gmail.com",
+      "vat": 8,
+      "price": 324,
+      "products": [
+        {
+          "productId": "P002",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "0246",
+      "userId": "undefined",
+      "orderDate": "2024-04-23T08:48:33.443Z",
+      "requireDate": "2024-04-26T08:48:33.443Z",
+      "status": "Pending",
+      "address": "Hà nội",
+      "mobile": "0987654321",
+      "email": "a@gmail.com",
+      "vat": 8,
+      "price": 324,
+      "products": [
+        {
+          "productId": "P002",
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "productId": "P001",
+      "name": "Sản phẩm 1",
+      "category": "Thời trang",
+      "price": 300,
+      "year": 2021,
+      "imageUrl": "/assets/images/cake2.jpg",
+      "id": "a9a4"
+    },
+    {
+      "productId": "P002",
+      "name": "Sản phẩm 2",
+      "category": "Thời trang",
+      "price": 300,
+      "year": 2021,
+      "imageUrl": "/assets/images/cake2.jpg",
+      "id": "a9a4"
+    },
+    {
+      "productId": "P003",
+      "name": "Sản phẩm 3",
+      "category": "Đồ gia dụng",
+      "price": 150,
+      "year": 2020,
+      "imageUrl": "/assets/images/cake3.jpg",
+      "id": "a0d9"
+    },
+    {
+      "productId": "P004",
+      "name": "Sản phẩm 4",
+      "category": "Thực phẩm",
+      "price": 50,
+      "year": 2022,
+      "imageUrl": "/assets/images/cake4.jpg",
+      "id": "ac85"
+    },
+    {
+      "productId": "P005",
+      "name": "Sản phẩm 5",
+      "category": "Điện tử",
+      "price": 800,
+      "year": 2018,
+      "imageUrl": "/assets/images/cake5.jpg",
+      "id": "e7f1"
+    },
+    {
+      "productId": "P006",
+      "name": "Sản phẩm 6",
+      "category": "Thể thao",
+      "price": 250,
+      "year": 2020,
+      "imageUrl": "/assets/images/cake6.jpg",
+      "id": "2534"
+    },
+    {
+      "productId": "P007",
+      "name": "Sản phẩm 7",
+      "category": "Giáo dục",
+      "price": 100,
+      "year": 2019,
+      "imageUrl": "/assets/images/cake9.jpg",
+      "id": "874e"
+    },
+    {
+      "productId": "P008",
+      "name": "Sản phẩm 8",
+      "category": "Văn phòng phẩm",
+      "price": 20,
+      "year": 2021,
+      "imageUrl": "/assets/images/cake8.jpg",
+      "id": "b408"
+    },
+    {
+      "productId": "P009",
+      "name": "Sản phẩm 8",
+      "category": "Văn phòng phẩm",
+      "price": 20,
+      "year": 2021,
+      "imageUrl": "/assets/images/cake8.jpg",
+      "id": "b408"
+    }
+  ]
+}
