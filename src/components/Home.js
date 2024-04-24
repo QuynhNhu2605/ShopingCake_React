@@ -8,11 +8,12 @@ import Layout from './Layout';
 function Home({ }) {
     const [cartCount, setCartCount] = useState(0);
     const [user, setUser] = useState();
-    const userId = useParams()
+    const userId = JSON.parse(localStorage.getItem('user'))
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        if (userId.id) {
+        console.log()
+        if (userId) {
             axios.get(`http://localhost:9999/users/${userId.id}`)
                 .then(response => {
                     setUser(response.data);
@@ -27,7 +28,7 @@ function Home({ }) {
             const newCartCount = storedCart.reduce((count, item) => count + item.quantity, 0);
             setCartCount(newCartCount);
         }
-    }, [cartCount, userId.id]);
+    }, [cartCount, userId]);
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
         const newCartCount = storedCart.reduce((count, item) => count + item.quantity, 0);
@@ -43,8 +44,7 @@ function Home({ }) {
 
     return (
         <Container fluid>
-            <Navbar cartCount={cartCount} userId={userId.id} setCartCount={setCartCount}></Navbar>
-            <Layout userId={userId.id}></Layout>
+            <Layout ></Layout>
             <div className="">
                 <div className="row justify-content-center" >
                     {products.map(product => (

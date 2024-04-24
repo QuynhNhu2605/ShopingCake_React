@@ -3,72 +3,48 @@ import { Container, Row, Col, Button, Nav, Navbar, NavDropdown } from 'react-boo
 import ProductListAdmin from './ProductListAdmin';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-
+import MyNav from './Navbar';
 const Admin = ({ }) => {
+    const [cartCount, setCartCount] = useState(0);
+    const [user, setUser] = useState();
+    const userId = JSON.parse(localStorage.getItem('user'))
     const [products, setProducts] = useState([]);
-    const { userId } = useParams();
 
     useEffect(() => {
-        // Lấy dữ liệu products từ API
-        const fetchProducts = async () => {
-            try {
-                const response = await axios.get(`http://localhost:9999/products`);
-                setProducts(response.data);
-            } catch (error) {
-                console.error('Error fetching products:', error);
-            }
-        };
-
-        fetchProducts();
+        console.log()
+        if (userId) {
+            axios.get(`http://localhost:9999/users/${userId.id}`)
+                .then(response => {
+                    setUser(response.data);
+                    // Tính tổng số lượng của các sản phẩm trong giỏ hàng
+                    const totalQuantity = response.data.cart.reduce((total, item) => total + item.quantity, 0);
+                    localStorage.setItem('cartCount', totalQuantity);
+                    setCartCount(totalQuantity);
+                })
+                .catch(error => console.error('Error fetching user data:', error));
+        } else {
+            const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+            const newCartCount = storedCart.reduce((count, item) => count + item.quantity, 0);
+            setCartCount(newCartCount);
+        }
+    }, [cartCount, userId]);
+    useEffect(() => {
+        const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+        const newCartCount = storedCart.reduce((count, item) => count + item.quantity, 0);
+        setCartCount(newCartCount);
     }, []);
-
+    useEffect(() => {
+        axios.get('http://localhost:9999/products')
+            .then(response => {
+                setProducts(response.data);
+            })
+            .catch(error => console.error('Error fetching products:', error));
+    }, []);
     return (
         <div class="admin-dashboard">
-            {/* Sidebar */}
-            <div class="sidebar">
-                <Row style={{ margin: "20px 5px" }}>
-                    <Col>
-                        <h3>Welcome User</h3>
-                    </Col>
-                    <Col style={{ display: "flex", justifyContent: "end" }}>
-                        <Button variant="primary" size="lg" class="logout-btn">Logout</Button>
-                    </Col>
-                </Row>
-
-            </div>
-
             {/* Main content */}
-            <Container fluid>
-                <Row style={{ height: "100hv" }}>
-                    <Col sm={2} >
-                        {/* Navbar */}
-                        <Navbar expand="lg" variant="dark" bg="dark" style={{ height: "100hv", display: "flex", alignItems: "flex-start" }}>
-                            <Container >
-                                <Col class="sidebar-nav">
-                                    <Row>
-                                        <Navbar.Brand href="#">Admin Dashboard</Navbar.Brand>
-                                    </Row>
-                                    <Row>
-                                        <Nav class="flex-column">
-                                            <Nav.Link href="#category" style={{ color: "white" }}>Category</Nav.Link>
-                                            <Nav.Link href="#product" style={{ color: "white" }}>Product</Nav.Link>
-                                            <Nav.Link href="#members" style={{ color: "white" }}>Members</Nav.Link>
-                                        </Nav>
-                                    </Row>
-                                </Col>
 
-                            </Container>
-                        </Navbar>
-                    </Col>
-                    <Col>
-                        <ProductListAdmin products={products} ></ProductListAdmin>
-                    </Col>
-                </Row>
-
-
-
-            </Container>
-        </div>
+        </div >
     );
 };
 

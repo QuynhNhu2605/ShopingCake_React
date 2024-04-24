@@ -16,15 +16,14 @@ function ProfilePage() {
         role: 2,
         cart: []
     });
-
-    const userId = useParams();
+    const userId = JSON.parse(localStorage.getItem('user'))
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
         const newCartCount = storedCart.reduce((count, item) => count + item.quantity, 0);
         setCartCount(newCartCount);
     }, []);
     useEffect(() => {
-        if (userId.id) {
+        if (userId) {
             axios.get(`http://localhost:9999/users/${userId.id}`)
                 .then(response => {
                     // Tính tổng số lượng của các sản phẩm trong giỏ hàng
@@ -37,7 +36,7 @@ function ProfilePage() {
                 try {
                     const response = await axios.get(`http://localhost:9999/users/${userId.id}`);
                     setUser(response.data);
-                    console.log(user)
+                    console.log(userId)
                     // Cập nhật newUserInfo với dữ liệu từ user
                     setNewUserInfo({
                         id: response.data.id,
@@ -96,7 +95,7 @@ function ProfilePage() {
 
     return (
         <Container >
-            <Navbar cartCount={cartCount} userId={userId.id} setCartCount={setCartCount}></Navbar>
+            <Navbar cartCount={cartCount} etCartCount={setCartCount}></Navbar>
             <h2>User Profile</h2>
             <Form>
                 <Form.Group controlId="formName">

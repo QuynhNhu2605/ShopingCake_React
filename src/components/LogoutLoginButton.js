@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Container, Table, Form } from 'react-bootstrap';
-function LogoutLoginButton({ userId, setCartCount }) {
+function LogoutLoginButton({ setCartCount }) {
     const navigate = useNavigate();
+    const userId = JSON.parse(localStorage.getItem('user'))
 
     const handleLogout = () => {
         console.log(userId)
@@ -10,7 +11,7 @@ function LogoutLoginButton({ userId, setCartCount }) {
         localStorage.removeItem('user');
         localStorage.removeItem('cart');
         // Chuyển hướng người dùng về trang đăng nhập
-        navigate('/home/undefined');
+        navigate('/home');
         window.location.reload();
 
     };
@@ -21,7 +22,7 @@ function LogoutLoginButton({ userId, setCartCount }) {
 
     return (
         <div>
-            {userId !== "undefined" ? (<Button variant="success" onClick={handleLogout}>Logout</Button>) : (<Button variant="success" onClick={handleLogin}>Login</Button>)}
+            {userId !== null ? (<Button variant="success" onClick={handleLogout}>Logout</Button>) : (<Button variant="success" onClick={handleLogin}>Login</Button>)}
         </div>
 
     );

@@ -3,8 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import NavigationBar from "./NavigationBar";
 import ProductCarousel from "./ProductCarousel";
 import { Navbar, Nav, Row, Col } from "react-bootstrap";
-function Layout({ userId }) {
+function Layout({ }) {
     const [products, setProducts] = useState([]);
+    const userId = JSON.parse(localStorage.getItem('user'))
     useEffect(() => {
 
         fetch("http://localhost:9999/products")
@@ -35,7 +36,7 @@ function Layout({ userId }) {
             </Row>
 
             {/* 3.	Develop a navigation bar using React-Bootstrap to switch between different product categories. */}
-            <NavigationBar userId={userId}
+            <NavigationBar
                 menus={[
                     "Home",
                     "Products",

@@ -15,14 +15,15 @@ function Login() {
             navigate(user.role === 1 ? '/admin' : '/');  // Chuyển hướng dựa trên role
         }
     }, [navigate]);
-    const handleRegister = async (event) => {
+    const handleLogin = async (event) => {
         event.preventDefault();
         try {
             const response = await axios.get(`http://localhost:9999/users?email=${email}&password=${password}`);
             if (response.data.length > 0) {
                 const user = response.data[0];
                 localStorage.setItem('user', JSON.stringify(user));
-                navigate(user.role === 1 ? `/admin/${user.id}` : `/home/${user.id}`);
+                navigate(user.role === 1 ? `/admin` : `/home`);
+                window.location.reload();
             } else {
                 alert('Invalid email or password');
             }
@@ -46,7 +47,7 @@ function Login() {
                                 <div class="col-md-6 col-lg-7 d-flex align-items-center">
                                     <div class="card-body p-4 p-lg-5 text-black">
 
-                                        <Form onSubmit={handleRegister}>
+                                        <Form onSubmit={handleLogin}>
 
                                             <div class="d-flex align-items-center mb-3 pb-1">
                                                 <i class="fas fa-cubes fa-2x me-3" style={{ color: "#ff6219" }} ></i>

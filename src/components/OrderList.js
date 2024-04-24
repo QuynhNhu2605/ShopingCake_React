@@ -8,14 +8,14 @@ function OrderList({ }) {
     const [orders, setOrders] = useState([]);
     const [products, setProducts] = useState([]);
     const [cartCount, setCartCount] = useState(0);
-    const userId = useParams();
+    const userId = JSON.parse(localStorage.getItem('user'))
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
         const newCartCount = storedCart.reduce((count, item) => count + item.quantity, 0);
         setCartCount(newCartCount);
     }, []);
     useEffect(() => {
-        if (userId.id) {
+        if (userId) {
             axios.get(`http://localhost:9999/users/${userId.id}`)
                 .then(response => {
                     // Tính tổng số lượng của các sản phẩm trong giỏ hàng
@@ -46,8 +46,7 @@ function OrderList({ }) {
 
     return (
         <Container fluid>
-            <Navbar cartCount={cartCount} userId={userId.id} setCartCount={setCartCount}></Navbar>
-            <Layout userId={userId.id}></Layout>
+            <Layout ></Layout>
             <h2>Order History</h2>
             <Table striped bordered hover>
                 <thead>

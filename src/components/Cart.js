@@ -3,27 +3,27 @@ import { Button, Container, Table, Form } from 'react-bootstrap';
 import Navbar from './Navbar';
 import { Link, useParams, useNavigate } from "react-router-dom"
 import axios from 'axios';
+
 function Cart({ }) {
     const [showForm, setShowForm] = useState(false);
     const [address, setAddress] = useState('');
     const [mobile, setMobile] = useState('');
     const [email, setEmail] = useState('');
     const [totalPrice, setTotalPrice] = useState();
-
-
+    const [paymentUrl, setPaymentUrl] = useState('');
     const [cartCount, setCartCount] = useState(0);
     const [cartItems, setCartItems] = useState([]);
     const [cart, setCart] = useState([]);
     const [products, setProducts] = useState([]);
     const [user, setUser] = useState([]);
-    const userId = useParams()
+    const userId = JSON.parse(localStorage.getItem('user'))
     const navigate = useNavigate();
     useEffect(() => {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         setCartCount(cart.reduce((count, item) => count + item.quantity, 0));
     }, []);
     useEffect(() => {
-        if (userId.id !== "undefined") {
+        if (userId !== null) {
             axios.get(`http://localhost:9999/users/${userId.id}`)
                 .then(response => {
                     const totalQuantity = response.data.cart.reduce((total, item) => total + item.quantity, 0);
@@ -44,7 +44,7 @@ function Cart({ }) {
                 setProducts(response.data);
             })
             .catch(error => console.error('Error fetching products:', error));
-        if (userId.id !== "undefined") {
+        if (userId !== null) {
             axios.get(`http://localhost:9999/users/${userId.id}`)
                 .then(response => {
                     setUser(response.data);
@@ -56,7 +56,7 @@ function Cart({ }) {
     const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
     useEffect(() => {
         let updatedCart;
-        if (userId.id !== "undefined") {
+        if (userId !== null) {
             updatedCart = user.cart;
         } else {
             updatedCart = storedCart;
@@ -77,7 +77,7 @@ function Cart({ }) {
     }, [user, storedCart]);
     const updateVAT = (updatedCart) => {
         let totalPrice = 0;
-        if (userId.id !== "undefined") {
+        if (userId !== null) {
             // Tính tổng số tiền cho giỏ hàng mới
             totalPrice = updatedCart.reduce((total, item) => {
                 const product = products.find(p => p.productId === item.productId);
@@ -103,7 +103,7 @@ function Cart({ }) {
 
     const updateQuantity = async (productId, quantityChange) => {
 
-        if (userId.id !== "undefined") {
+        if (userId !== null) {
             let updatedCart;
             updatedCart = user.cart.map(item =>
                 item.productId === productId ? { ...item, quantity: Math.max(1, quantityChange) } : item)
@@ -146,7 +146,7 @@ function Cart({ }) {
     };
 
     const removeItem = (productId) => {
-        if (userId.id !== "undefined") {
+        if (userId !== null) {
             // Tìm index của sản phẩm cần xóa trong giỏ hàng của người dùng
             const index = user.cart.findIndex(item => item.productId === productId);
             // Xóa sản phẩm khỏi giỏ hàng của người dùng
@@ -174,7 +174,7 @@ function Cart({ }) {
     const handleVerifyOrderClick = () => {
         if (cart.length === 0 && cartItems.length === 0) {
             alert("Vui thêm sản phẩm vào giỏ hàng!");
-            return;
+
         }
         else {
             setShowForm(true);
@@ -182,17 +182,12 @@ function Cart({ }) {
         }
     };
     const verifyOrder = async () => {
-
-        if (!address || !mobile || !email) {
-            alert("Vui lòng điền đầy đủ thông tin!");
-            return;
-        }
-        // Ngày giao hàng (3 ngày sau)
+        // Thêm dữ liệu vào cơ sở dữ liệu
         const today = new Date();
         const requireDate = new Date(today);
         requireDate.setDate(requireDate.getDate() + 3);
         const order = {
-            userId: userId.id,
+            userId: userId !== null ? userId.id : Math.random().toString(36).substring(2, 8),
             orderDate: today.toISOString(),
             requireDate: requireDate.toISOString(),
             status: "Pending",
@@ -201,35 +196,145 @@ function Cart({ }) {
             email: email,
             vat: 8,
             price: totalPrice * 0.08 + totalPrice,
-            products: userId.id !== "undefined" ?
+            products: userId !== null ?
                 cart.map(item => ({ productId: item.productId, quantity: item.quantity })) :
                 cartItems.map(item => ({ productId: item.productId, quantity: item.quantity })),
         };
-
-        try {
-            await axios.post('http://localhost:9999/orders', order);
-            const updatedCart = userId.id !== "undefined" ?
+        if (!address || !mobile || !email) {
+            alert("Vui lòng điền đầy đủ thông tin!");
+            setShowForm(true);
+        }
+        else if (cart.length === 0 && cartItems.length === 0) {
+            alert("Vui lòng thêm sản phẩm vào giỏ hàng!");
+        }
+        else {
+            const updatedCart = userId !== null ?
                 user.cart.filter(item => !cart.find(cartItem => cartItem.productId === item.productId)) :
                 [];
-            await fetch(`http://localhost:9999/users/${userId.id}`, {
-                method: 'Put',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ ...user, cart: updatedCart }),
-            });
-            localStorage.setItem('cart', JSON.stringify(updatedCart));
-            setCartCount(updatedCart.reduce((total, item) => total + item.quantity, 0));
-            alert("Đặt hàng thành công!");
-            navigate(`/cart/${userId.id}`);
+            if (userId !== null) {
+                axios.put(`http://localhost:9999/users/${userId.id}`, {
+                    ...user,
+                    cart: updatedCart
+                })
+                    .then(() => {
+                        localStorage.setItem('cart', JSON.stringify(updatedCart));
+                        setCartCount(updatedCart.reduce((total, item) => total + item.quantity, 0));
+                        alert("Đặt hàng và thanh toán thành công!");
+                        navigate(`/cart`);
+                    })
+                    .catch(error => console.error('Error updating cart:', error));
+            }
+            axios.post('http://localhost:9999/orders', order)
 
+                .catch(error => console.error('Error adding order:', error));
+        }
+        // Thực hiện thanh toán
+
+    };
+    const initializePayment = async () => {
+        try {
+            const response = await axios.post('http://sandbox.vnpayment.vn/tryitnow/Home/CreateOrder', {
+                amount: totalPrice * 0.08 + totalPrice,
+                orderInfo: 'Thanh toán đơn hàng',
+                orderId: 'ORDER_ID_123',
+            });
+
+            if (response.data.success) {
+                setPaymentUrl(response.data.paymentUrl);
+            } else {
+                console.error('Error:', response.data.message);
+            }
         } catch (error) {
-            console.error('Error verifying order:', error);
+            console.error('Error:', error);
         }
     };
+
+    useEffect(() => {
+        if (paymentUrl) {
+            window.location.href = paymentUrl;
+        }
+    }, [paymentUrl]);
+    // Xử lý phản hồi từ VNPAY sau khi thanh toán thành công
+    useEffect(() => {
+        // const params = new URLSearchParams(window.location.search);
+        // const isSuccess = params.get('vnp_ResponseCode') === '00'; // Kiểm tra mã phản hồi từ VNPAY
+
+        // if (isSuccess) {
+
+        // }
+    }, []);
+    const handleVNPay = () => {
+        router.post('/cart', function (req, res, next) {
+            var ipAddr = req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+
+            // Thông tin cấu hình
+            var tmnCode = 'Z1FMHL2N';
+            var secretKey = 'RGCDUCNFWHKGAWEFDUMTYUELCTJGNKHH';
+            var vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+            var returnUrl = 'http://localhost:3000/Cart'; // Thay YOUR_RETURN_URL bằng URL trả về của bạn
+
+            var date = new Date();
+            var createDate = dateFormat(date, 'yyyymmddHHmmss');
+            var orderId = dateFormat(date, 'HHmmss');
+            var amount = 1000000;
+            // var bankCode = req.body.bankCode;
+            // var orderInfo = req.body.orderDescription;
+            // var orderType = req.body.orderType;
+            var locale = req.body.language || 'vn'; // Mặc định là 'vn' nếu ngôn ngữ không được cung cấp
+
+            var currCode = 'VND';
+            var vnp_Params = {
+                vnp_Version: '2.1.0',
+                vnp_Command: 'pay',
+                vnp_TmnCode: tmnCode,
+                vnp_Locale: locale,
+                vnp_CurrCode: currCode,
+                vnp_TxnRef: orderId,
+                vnp_OrderInfo: orderInfo,
+                vnp_OrderType: orderType,
+                vnp_Amount: amount * 100,
+                vnp_ReturnUrl: returnUrl,
+                vnp_IpAddr: ipAddr,
+                vnp_CreateDate: createDate
+            };
+
+            // Thêm mã ngân hàng nếu có
+            if (bankCode) {
+                vnp_Params['vnp_BankCode'] = bankCode;
+            }
+
+            // Sắp xếp các tham số theo thứ tự tăng dần
+            var sortedParams = {};
+            Object.keys(vnp_Params).sort().forEach(function (key) {
+                sortedParams[key] = vnp_Params[key];
+            });
+
+            // Tạo chuỗi dữ liệu để tạo chữ ký bảo mật
+            var querystring = require('qs');
+            var signData = querystring.stringify(sortedParams, { encode: false });
+
+            // Tạo chữ ký bảo mật
+            var crypto = require("crypto");
+            var hmac = crypto.createHmac("sha512", secretKey);
+            var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");
+
+            // Thêm chữ ký bảo mật vào các tham số
+            vnp_Params['vnp_SecureHash'] = signed;
+
+            // Tạo URL thanh toán
+            var redirectUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
+
+            // Chuyển hướng người dùng đến URL thanh toán
+            res.redirect(redirectUrl);
+        });
+    }
+
+
     return (
         <Container>
-            <Navbar cartCount={cartCount} userId={userId.id} setCartCount={setCartCount}></Navbar>
             <div className="container mt-5">
                 <Table striped bordered hover>
                     <thead>
@@ -248,7 +353,7 @@ function Cart({ }) {
                                 <td colSpan="5" className="text-center">Giỏ hàng trống</td>
                             </tr>
                         ) : ( */}
-                        {userId.id !== "undefined" ? (cart.map((item, index) => (
+                        {userId !== null ? (cart.map((item, index) => (
                             <tr key={index}>
                                 <td>{products && (products.find(p => p.productId === item.productId))?.productId}</td>
                                 <td>{products && (products.find(p => p.productId === item.productId))?.name}</td>
@@ -306,6 +411,17 @@ function Cart({ }) {
                     </Form>
                 </div>
             )}
+            <div>
+                <Button variant="success" onClick={initializePayment}>Thanh toán qua VNPay</Button>
+                {paymentUrl && (
+                    <div onClick={handleVNPay}>
+                        <p>Click vào link sau để thanh toán:</p>
+                        <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
+                            {paymentUrl}
+                        </a>
+                    </div>
+                )}
+            </div>
         </Container>
 
     );
